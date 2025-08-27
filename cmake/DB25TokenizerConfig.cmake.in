@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/DB25TokenizerTargets.cmake")
+
+check_required_components(DB25Tokenizer)
