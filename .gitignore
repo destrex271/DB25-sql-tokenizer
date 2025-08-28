@@ -136,6 +136,47 @@ docs/latex/
 doxygen/
 *.dox
 
+# LaTeX/pdfLaTeX intermediate files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.dvi
+*.xdv
+*-converted-to.*
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+*.nav
+*.snm
+*.vrb
+*.soc
+*.cut
+*.brf
+*.lol
+*.lotables
+*.locode
+*.lyx~
+*.backup
+*~[0-9]*
+
 # Package files
 *.tar.gz
 *.tar.bz2
