@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 [![SIMD](https://img.shields.io/badge/SIMD-Optimized-green.svg)](docs/ARCHITECTURE.md)
-[![Performance](https://img.shields.io/badge/Performance-20M%20tokens%2Fs-red.svg)](docs/benchmarks/)
+[![Performance](https://img.shields.io/badge/Performance-20M%20tokens%2Fs-red.svg)](docs/ARCHITECTURE.md)
 
 A high-performance SQL tokenizer leveraging SIMD instructions for blazing-fast lexical analysis. Part of the DB25 project, achieving **20+ million tokens per second** throughput on modern hardware.
 
@@ -124,7 +124,7 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed design documentation.
 
 - [**Tutorial**](docs/TUTORIAL.md) - Step-by-step guide with examples
 - [**Architecture**](docs/ARCHITECTURE.md) - Detailed system design
-- [**API Reference**](docs/API.md) - Complete API documentation
+- [**Visual Tutorial**](docs/tutorial-diagrams.pdf) - Diagrams and visualizations
 - [**Contributing**](CONTRIBUTING.md) - How to contribute
 - [**Academic Papers**](papers/) - Research and performance analysis
 
@@ -133,17 +133,17 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed design documentation.
 The tokenizer includes comprehensive testing against real-world SQL:
 
 ```bash
-# Run all tests
-make check
+# Build and run tests
+cmake --build build
 
 # Run specific test
-./test_sql_file test/sql_test.sqls
+./build/test_sql_file test/sql_test.sqls
 
 # Generate verification output
-./test_sql_file -o
+./build/test_sql_file -o
 
 # Verbose mode
-./test_sql_file -v
+./build/test_sql_file -v
 ```
 
 Test coverage includes 23 SQL queries across 4 complexity levels with 100% pass rate.
@@ -159,7 +159,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📈 Benchmarks
 
-Detailed benchmarks are available in the [benchmarks directory](docs/benchmarks/):
+Performance benchmarks are detailed in the documentation:
 
 - Token distribution analysis
 - SIMD operation performance
@@ -175,7 +175,7 @@ The DB25 tokenizer is the foundation for a next-generation SQL processing engine
 - **Stage 4**: Query optimization and plan generation
 - **Stage 5**: JIT compilation for expression evaluation
 
-See our [Vision Paper](papers/vision.pdf) for the complete roadmap.
+See our [Academic Paper](papers/db25-tokenizer-paper.pdf) for the complete roadmap.
 
 ## 📄 License
 
@@ -193,9 +193,8 @@ in the Software without restriction...
 
 ## 📖 Academic Papers
 
-- [Stage 1: High-Performance Foundation Layer](papers/stage-1/paper.pdf)
-- [SIMD Text Processing Techniques](papers/stage-1/tutorial.pdf)
-- [Lock-Free Memory Management](papers/memory-management.pdf)
+- [DB25 Tokenizer Academic Paper](papers/db25-tokenizer-paper.pdf)
+- [Visual Tutorial with Diagrams](docs/tutorial-diagrams.pdf)
 
 ## 🙏 Acknowledgments
 
