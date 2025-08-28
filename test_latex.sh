@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Copyright (c) 2024 Chiradip Mandal
+# Author: Chiradip Mandal
+# Organization: Space-RF.org
+# 
+# This file is part of DB25 SQL Tokenizer.
+# 
+# Licensed under the MIT License. See LICENSE file for details.
+
 # Test LaTeX compilation script for DB25 tokenizer documentation
 
 echo "Testing LaTeX compilation..."

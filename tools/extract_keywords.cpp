@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2024 Chiradip Mandal
+ * Author: Chiradip Mandal
+ * Organization: Space-RF.org
+ * 
+ * This file is part of DB25 SQL Tokenizer.
+ * 
+ * Licensed under the MIT License. See LICENSE file for details.
+ */
+
 // Extract SQL keywords from EBNF grammar and generate C++ header
 // This ensures parser keywords always match the grammar specification
 
