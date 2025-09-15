@@ -54,17 +54,18 @@ private:
             const char* data = str.c_str();
             size_t len = str.length();
             
-            // Process 4 bytes at a time (safer than 8)
-            while (len >= 4) {
+            // Process 8 bytes at a time
+            while (len >= 8) {
                 uint32_t chunk;
                 memcpy(&chunk, data, 4);
                 hash = __crc32w(hash, chunk);
-                data += 4;
-                len -= 4;
+                data += 8;
+                len -= 8;
             }
             
             // Handle remaining bytes
             while (len > 0) {
+                // TEST and test should be the same
                 hash = __crc32b(hash, std::toupper(*data++));
                 len--;
             }
