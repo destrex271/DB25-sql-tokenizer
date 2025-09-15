@@ -23,6 +23,11 @@
 #include <cctype>
 #include <map>
 
+
+#ifdef __ARM_FEATURE_CRC32
+#include <arm_acle.h>
+#endif
+
 struct KeywordInfo {
     std::string keyword;
     size_t length;
@@ -42,16 +47,41 @@ private:
     
     static constexpr uint32_t FNV1A_PRIME = 0x01000193;
     static constexpr uint32_t FNV1A_OFFSET = 0x811C9DC5;
-    
-    // FNV-1a hash for compile-time keyword hashing
-    static uint32_t hash_keyword(const std::string& str) {
-        uint32_t hash = FNV1A_OFFSET;
-        for (char c : str) {
-            hash ^= static_cast<uint8_t>(std::toupper(c));
-            hash *= FNV1A_PRIME;
+
+    #ifdef __ARM_FEATURE_CRC32
+        static uint32_t hash_keyword(const std::string& str) {
+            uint32_t hash = 0;
+            const char* data = str.c_str();
+            size_t len = str.length();
+            
+            // Process 4 bytes at a time (safer than 8)
+            while (len >= 4) {
+                uint32_t chunk;
+                memcpy(&chunk, data, 4);
+                hash = __crc32w(hash, chunk);
+                data += 4;
+                len -= 4;
+            }
+            
+            // Handle remaining bytes
+            while (len > 0) {
+                hash = __crc32b(hash, std::toupper(*data++));
+                len--;
+            }
+            
+            return hash;
         }
-        return hash;
-    }
+    #else
+        // FNV-1a hash for compile-time keyword hashing
+        static uint32_t hash_keyword(const std::string& str) {
+            uint32_t hash = FNV1A_OFFSET;
+            for (char c : str) {
+                hash ^= static_cast<uint8_t>(std::toupper(c));
+                hash *= FNV1A_PRIME;
+            }
+            return hash;
+        }
+    #endif
     
 public:
     bool extract_from_ebnf(const std::string& ebnf_file) {
