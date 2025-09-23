@@ -183,55 +183,114 @@ add_library(DB25::Tokenizer ALIAS db25_tokenizer)
 # ==============================================
 if(BUILD_TESTS)
     enable_testing()
-    
+
     # Main test executable
     add_executable(test_sql_file
         test/test_sql_file.cpp
     )
-    
+
     target_link_libraries(test_sql_file
         PRIVATE
             DB25::Tokenizer
     )
-    
+
+    # Operator test executable
+    add_executable(test_operators
+        test/test_operators.cpp
+    )
+
+    target_link_libraries(test_operators
+        PRIVATE
+            DB25::Tokenizer
+    )
+
+    # Invalid operators test executable - tests rejection of invalid operators
+    add_executable(test_invalid_operators
+        test/test_invalid_operators.cpp
+    )
+
+    target_link_libraries(test_invalid_operators
+        PRIVATE
+            DB25::Tokenizer
+    )
+
     # Copy test data to build directory
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/test/sql_test.sqls
         ${CMAKE_CURRENT_BINARY_DIR}/test/sql_test.sqls
         COPYONLY
     )
-    
-    # Add CTest tests
+
+    # Add CTest tests with strict expectations
     add_test(
         NAME TokenizerBasicTest
         COMMAND test_sql_file
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-    
+    set_tests_properties(TokenizerBasicTest PROPERTIES
+        PASS_REGULAR_EXPRESSION "Success Rate: 100.0%"
+        FAIL_REGULAR_EXPRESSION "Failed: [1-9];Error"
+    )
+
     add_test(
         NAME TokenizerVerboseTest
         COMMAND test_sql_file -v
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-    
+    set_tests_properties(TokenizerVerboseTest PROPERTIES
+        PASS_REGULAR_EXPRESSION "Success Rate: 100.0%"
+        FAIL_REGULAR_EXPRESSION "Failed: [1-9];Error"
+    )
+
     add_test(
         NAME TokenizerOutputTest
         COMMAND test_sql_file -o
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-    
-    # Set test properties
+
+    add_test(
+        NAME OperatorTest
+        COMMAND test_operators
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    set_tests_properties(OperatorTest PROPERTIES
+        PASS_REGULAR_EXPRESSION "All tests passed.*No regressions detected"
+        FAIL_REGULAR_EXPRESSION "FAIL;Failed: [1-9]"
+    )
+
+    add_test(
+        NAME InvalidOperatorTest
+        COMMAND test_invalid_operators
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    set_tests_properties(InvalidOperatorTest PROPERTIES
+        PASS_REGULAR_EXPRESSION "All invalid operators correctly tokenized"
+        FAIL_REGULAR_EXPRESSION "FAIL;should be rejected"
+    )
+
+    # Performance regression test - ensure tokenizer is fast enough
+    add_test(
+        NAME PerformanceTest
+        COMMAND test_sql_file
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    set_tests_properties(PerformanceTest PROPERTIES
+        PASS_REGULAR_EXPRESSION "Success Rate: 100"  # All tests must pass
+    )
+
+    # Set test properties for all tests
     set_tests_properties(TokenizerBasicTest TokenizerVerboseTest TokenizerOutputTest
+                        OperatorTest InvalidOperatorTest PerformanceTest
         PROPERTIES
             TIMEOUT 10
             LABELS "tokenizer"
     )
-    
+
     # Add custom target for running tests
     add_custom_target(check
-        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-        DEPENDS test_sql_file
-        COMMENT "Running tokenizer tests"
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure --verbose
+        DEPENDS test_sql_file test_operators test_invalid_operators
+        COMMENT "Running all tokenizer tests with strict validation"
     )
 endif()
 
