@@ -9,6 +9,7 @@
  */
 
 #include "simd_tokenizer.hpp"
+#include "char_classifier.hpp"
 
 namespace db25 {
 
@@ -66,18 +67,17 @@ Token SimdTokenizer::next_token() {
         size_t start_column = column_;
         
         uint8_t first_char = static_cast<uint8_t>(input_[position_]);
-        
-        if ((first_char >= 'A' && first_char <= 'Z') ||
-            (first_char >= 'a' && first_char <= 'z') ||
-            first_char == '_') {
+
+        // Use lookup table for character classification
+        if (is_identifier_start(first_char)) {
             return scan_identifier_or_keyword(start, start_line, start_column);
         }
-        
-        if (first_char >= '0' && first_char <= '9') {
+
+        if (is_digit(first_char)) {
             return scan_number(start, start_line, start_column);
         }
-        
-        if (first_char == '\'' || first_char == '"') {
+
+        if (is_quote(first_char)) {
             return scan_string(start, start_line, start_column, first_char);
         }
         
@@ -97,10 +97,7 @@ Token SimdTokenizer::next_token() {
 Token SimdTokenizer::scan_identifier_or_keyword(size_t start, size_t start_line, size_t start_column) {
         while (position_ < input_size_) {
             uint8_t ch = static_cast<uint8_t>(input_[position_]);
-            if (!((ch >= 'A' && ch <= 'Z') ||
-                  (ch >= 'a' && ch <= 'z') ||
-                  (ch >= '0' && ch <= '9') ||
-                  ch == '_')) {
+            if (!is_identifier_cont(ch)) {
                 break;
             }
             ++position_;
@@ -136,11 +133,11 @@ Token SimdTokenizer::scan_identifier_or_keyword(size_t start, size_t start_line,
 Token SimdTokenizer::scan_number(size_t start, size_t start_line, size_t start_column) {
         bool has_dot = false;
         bool has_exp = false;
-        
+
         while (position_ < input_size_) {
             uint8_t ch = static_cast<uint8_t>(input_[position_]);
-            
-            if (ch >= '0' && ch <= '9') {
+
+            if (is_digit(ch)) {
                 ++position_;
                 ++column_;
             } else if (ch == '.' && !has_dot && !has_exp) {
@@ -262,13 +259,9 @@ Token SimdTokenizer::scan_operator_or_delimiter(size_t start, size_t start_line,
         uint8_t ch = static_cast<uint8_t>(input_[position_]);
         ++position_;
         ++column_;
-        
-        TokenType type = TokenType::Operator;
-        
-        if (ch == '(' || ch == ')' || ch == '[' || ch == ']' ||
-            ch == '{' || ch == '}' || ch == ',' || ch == ';') {
-            type = TokenType::Delimiter;
-        }
+
+        // Use lookup table to determine token type
+        TokenType type = is_delimiter(ch) ? TokenType::Delimiter : TokenType::Operator;
         
         if (position_ < input_size_) {
             uint8_t next = static_cast<uint8_t>(input_[position_]);
@@ -297,7 +290,8 @@ Token SimdTokenizer::scan_operator_or_delimiter(size_t start, size_t start_line,
 
 void SimdTokenizer::update_position(size_t count) {
         for (size_t i = 0; i < count; ++i) {
-            if (static_cast<uint8_t>(input_[position_]) == '\n') {
+            uint8_t ch = static_cast<uint8_t>(input_[position_]);
+            if (ch == '\n') {
                 ++line_;
                 column_ = 1;
             } else {

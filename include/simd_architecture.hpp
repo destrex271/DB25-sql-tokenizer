@@ -21,6 +21,7 @@
 // ============================================================================
 
 #include "cpu_detection.hpp"
+#include "char_classifier.hpp"
 #include <cstring>
 #include <cstddef>
 #include <array>
@@ -58,16 +59,14 @@ public:
     
     [[nodiscard]] size_t find_whitespace(const std::byte* data, size_t size) const noexcept {
         return find_delimiter(data, size, [](std::byte b) {
-            uint8_t c = static_cast<uint8_t>(b);
-            return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+            return is_whitespace(static_cast<uint8_t>(b));
         });
     }
-    
+
     [[nodiscard]] size_t skip_whitespace(const std::byte* data, size_t size) const noexcept {
         size_t i = 0;
         while (i < size) {
-            uint8_t c = static_cast<uint8_t>(data[i]);
-            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+            if (!is_whitespace(static_cast<uint8_t>(data[i]))) {
                 break;
             }
             ++i;
@@ -90,10 +89,7 @@ public:
         
         if (size > kw_len) {
             uint8_t next_char = static_cast<uint8_t>(data[kw_len]);
-            return !((next_char >= 'A' && next_char <= 'Z') ||
-                    (next_char >= 'a' && next_char <= 'z') ||
-                    (next_char >= '0' && next_char <= '9') ||
-                    next_char == '_');
+            return !is_identifier_cont(next_char);
         }
         
         return true;
@@ -431,10 +427,7 @@ public:
         // Check word boundary
         if (size > kw_len) {
             uint8_t next_char = static_cast<uint8_t>(data[kw_len]);
-            return !((next_char >= 'A' && next_char <= 'Z') ||
-                    (next_char >= 'a' && next_char <= 'z') ||
-                    (next_char >= '0' && next_char <= '9') ||
-                    next_char == '_');
+            return !is_identifier_cont(next_char);
         }
         
         return true;
